@@ -3,6 +3,7 @@
 """
 Xbox 360 Hybrid HLE-LLE Emulator
 Main entry point and CLI interface with enhanced debugging commands.
+This version fixes a race condition in the interactive debugger.
 """
 
 import os
@@ -66,31 +67,36 @@ def interactive_mode(emulator: Xbox360Emulator):
                 else:
                     print("Emulation is not running.")
             elif command == 'step':
+                # FIX: Prevent stepping while the main emulation thread is running.
+                if emulator.running:
+                    print("Cannot step while emulation is running. Use 'stop' first.")
+                    continue
+                
                 debugger.step_instruction()
                 print(debugger.dump_registers())
-                pc = emulator.cpu.cores[emulator.cpu.current_core_idx].get_current_registers().pc
+                pc = emulator.cpu.get_current_core().get_current_registers().pc
                 print("\nDisassembly:")
                 print("\n".join(debugger.disassemble_range(pc)))
             elif command == 'regs':
                 print(debugger.dump_registers())
             elif command == 'disasm':
                 addr_str = cmd[1] if len(cmd) > 1 else "pc"
-                pc = emulator.cpu.cores[emulator.cpu.current_core_idx].get_current_registers().pc
-                addr = int(addr_str, 16) if addr_str != "pc" else pc
+                # Get current core safely
+                current_core = emulator.cpu.get_current_core()
+                addr = int(addr_str, 16) if addr_str != "pc" else current_core.get_current_registers().pc
                 print("\n".join(debugger.disassemble_range(addr)))
             elif command == 'mem':
                 if len(cmd) < 2:
                     print("Usage: mem <hex_address>")
                     continue
                 addr = int(cmd[1], 16)
-                print(f"Memory dump at 0x{addr:08X} not fully implemented yet.")
+                print(f"Memory dump at 0x{addr:08X}:\n{emulator.memory.dump_memory(addr, 256)}")
             else:
                 print(f"Unknown command: {command}")
                 
         except KeyboardInterrupt:
             print("\nUse 'quit' or 'exit' to leave.")
         except Exception as e:
-            # This will now work correctly
             logger.error(f"Error in command: {e}", exc_info=True)
             
     print("Exiting interactive mode.")
@@ -117,7 +123,7 @@ def main():
         emulator.reset()
         
         if not args.game:
-            logger.error("No game specified. Please use the --game argument.")
+            logger.info("No game specified. Entering interactive mode.")
             interactive_mode(emulator)
             return 0
 

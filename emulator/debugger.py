@@ -3,7 +3,7 @@
 """
 Xbox 360 Emulator Debugger
 This version features a much more capable PowerPC disassembler to produce
-human-readable assembly code.
+human-readable assembly code. This version adds support for cmpli/cmpwi.
 """
 
 import logging
@@ -41,6 +41,17 @@ class PowerPCDisassembler:
             else: mnemonic = f"bc{lk}{aa}"
             return mnemonic.ljust(8) + f"cr{bi//4}, 0x{target:08X}"
         
+        # D-FORM (Compares)
+        if opcode in [0x0A, 0x0B]: # cmpli, cmpwi
+            crfD = (instr >> 23) & 0x7
+            ra = (instr >> 16) & 0x1F
+            imm = instr & 0xFFFF
+            mnemonic = "cmpli" if opcode == 0x0A else "cmpwi"
+            # For cmpwi, the immediate is signed
+            if opcode == 0x0B and (imm & 0x8000):
+                imm -= 0x10000
+            return mnemonic.ljust(8) + f"cr{crfD}, r{ra}, {imm}"
+
         # D-FORM (Immediate arithmetic, loads/stores)
         if opcode in [0x0E, 0x0F, 0x20, 0x24, 0x25]:
             rt, ra = (instr >> 21) & 0x1F, (instr >> 16) & 0x1F
@@ -67,18 +78,19 @@ class PowerPCDisassembler:
 
         # XFX-FORM (Move to/from SPR)
         if opcode == 0x1F:
-            rt, ra, rb = (instr >> 21) & 0x1F, (instr >> 16) & 0x1F, (instr >> 11) & 0x1F
+            rt = (instr >> 21) & 0x1F
+            spr_field = (instr >> 11) & 0x3FF
+            spr = ((spr_field & 0x1F) << 5) | ((spr_field >> 5) & 0x1F)
+            
             ext = (instr >> 1) & 0x3FF
             
             if ext == 339: # mfspr
-                spr = ((rb & 0x1F) << 5) | ((ra >> 5) & 0x1F)
                 if spr == 8: spr_name = "lr"
                 elif spr == 9: spr_name = "ctr"
                 else: spr_name = f"{spr}"
                 return "mfspr".ljust(8) + f"r{rt}, {spr_name}"
             
             if ext == 467: # mtspr
-                spr = ((rb & 0x1F) << 5) | ((ra >> 5) & 0x1F)
                 if spr == 8: spr_name = "lr"
                 elif spr == 9: spr_name = "ctr"
                 else: spr_name = f"{spr}"
@@ -110,7 +122,13 @@ class EmulatorDebugger:
     def disassemble_range(self, start_addr: int, count: int = 10) -> List[str]:
         """Disassemble instructions in a range."""
         lines = []
-        current_pc = self.emulator.cpu.get_current_core().get_current_registers().pc
+        # Ensure we can get the current core even if emulation isn't "running"
+        current_core = self.emulator.cpu.get_current_core()
+        if not current_core:
+             lines.append("<no active core to disassemble>")
+             return lines
+             
+        current_pc = current_core.get_current_registers().pc
         
         for i in range(count):
             addr = start_addr + (i * 4)
