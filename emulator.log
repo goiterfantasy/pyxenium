@@ -1,0 +1,30 @@
+2025-07-25 14:07:42,892 - __main__ - INFO - Starting Xbox 360 Emulator
+2025-07-25 14:07:42,892 - emulator.emulator - INFO - Initializing Xbox 360 Emulator...
+2025-07-25 14:07:42,955 - emulator.memory - INFO - Initialized Memory Manager with 512MB RAM and MMIO support.
+2025-07-25 14:07:42,955 - emulator.gpu - INFO - Initialized Xenos GPU with Command Processor
+2025-07-25 14:07:42,955 - emulator.cpu - INFO - Initialized Xenon CPU with 3 cores, 6 hardware threads
+2025-07-25 14:07:42,955 - emulator.filesystem - INFO - Mounted Game device 'Game' at games\game
+2025-07-25 14:07:42,955 - emulator.filesystem - INFO - Mounted HDD device 'HDD' at games\hdd
+2025-07-25 14:07:42,955 - emulator.filesystem - INFO - Mounted DVD device 'DVD' at games\dvd
+2025-07-25 14:07:42,955 - emulator.filesystem - INFO - Initialized 3 storage devices
+2025-07-25 14:07:42,955 - emulator.memory - INFO - Registered MMIO handler for range 0xEC80010C - 0xEC80010F
+2025-07-25 14:07:42,955 - emulator.emulator - INFO - MMIO handlers for all devices registered.
+2025-07-25 14:07:42,955 - emulator.emulator - INFO - Xbox 360 Emulator initialized successfully
+2025-07-25 14:07:42,955 - emulator.emulator - INFO - Resetting emulator...
+2025-07-25 14:07:42,955 - emulator.cpu - INFO - CPU reset to initial state
+2025-07-25 14:07:42,955 - emulator.gpu - INFO - GPU reset to initial state.
+2025-07-25 14:07:42,955 - emulator.emulator - INFO - Emulator reset complete
+2025-07-25 14:07:42,955 - emulator.emulator - INFO - Attempting to load game: C:\Users\Admin\Downloads\Grand Theft Auto IV (USA) (En,Fr,De,Es,It)\gta\default.exe
+2025-07-25 14:07:42,955 - emulator.emulator - INFO - PE/EXE file format detected.
+2025-07-25 14:07:42,955 - emulator.pe - INFO - PE Parsed Successfully: BaseAddress=0x82000000, EntryPoint=0x829A0860
+2025-07-25 14:07:42,955 - emulator.emulator - INFO - Loading base file into memory at 0x82000000
+2025-07-25 14:07:42,971 - emulator.emulator - INFO - Game loaded. Entry Point: 0x829A0860
+2025-07-25 14:07:44,692 - emulator.emulator - INFO - Starting emulation...
+2025-07-25 14:07:44,692 - emulator.emulator - INFO - Emulation loop started.
+2025-07-25 14:07:52,666 - __main__ - ERROR - Error in command: 'XenonCPU' object has no attribute 'get_current_core'
+Traceback (most recent call last):
+  File "C:\Users\Admin\Downloads\project-bolt-sb1-kqxdkxpz\project\main.py", line 80, in interactive_mode
+    print("\n".join(debugger.disassemble_range(addr)))
+  File "C:\Users\Admin\Downloads\project-bolt-sb1-kqxdkxpz\project\emulator\debugger.py", line 113, in disassemble_range
+    current_pc = self.emulator.cpu.get_current_core().get_current_registers().pc
+AttributeError: 'XenonCPU' object has no attribute 'get_current_core'

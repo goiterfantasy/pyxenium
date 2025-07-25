@@ -1,0 +1,28 @@
+{
+    "system": {
+        "kernel_path": "C:\\Users\\Admin\\Downloads\\xboxkrnl.1888(1).exe",
+        "nand_path": "nand.bin",
+        "hdd_path": "hdd.bin",
+        "cpu_threads": 6,
+        "memory_size": 536870912
+    },
+    "emulation": {
+        "cpu_mode": "interpreter",
+        "gpu_backend": "software",
+        "audio_backend": "none",
+        "hle_kernel": false,
+        "fast_boot": false
+    },
+    "debug": {
+        "enable_logging": true,
+        "log_level": "INFO",
+        "break_on_unknown_syscall": true,
+        "trace_execution": false,
+        "dump_memory": false
+    },
+    "paths": {
+        "game_directory": "games/",
+        "save_directory": "saves/",
+        "cache_directory": "cache/"
+    }
+}
